@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="padding: 2rem; font-family: sans-serif;">
+  <h1>Palette Sandbox 🎨</h1>
+  <p>Micro-UX: Accessible Copy to Clipboard</p>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <code id="c">pnpm add @palette/ux</code>
+    <button id="b" aria-label="Copy command" style="padding: 6px 12px; cursor: pointer;">Copy</button>
+  </div>
+  <div id="a" aria-live="polite" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;"></div>
+  <script>
+    const b = document.getElementById('b'), a = document.getElementById('a'), t = document.getElementById('c').innerText;
+    b.onclick = () => navigator.clipboard.writeText(t).then(() => {
+      const oldText = b.innerText; b.innerText = 'Copied!';
+      b.style.backgroundColor = '#065f46'; b.style.color = '#fff';
+      b.setAttribute('aria-label', 'Command copied'); a.textContent = 'Copied to clipboard';
+      setTimeout(() => {
+        b.innerText = oldText; b.style.backgroundColor = ''; b.style.color = '';
+        b.setAttribute('aria-label', 'Copy command'); a.textContent = '';
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
