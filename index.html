@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Palette Sandbox 🎨</title>
+  <style>
+    body { padding: 2rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1e293b; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .box { display: flex; align-items: center; gap: 8px; margin-top: 1.5rem; }
+    code { background: #f1f5f9; padding: 6px 12px; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 0.875rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 85px;
+      user-select: none;
+    }
+    button:hover:not(.success) { background: #f8fafc; border-color: #94a3b8; }
+    button:active { transform: scale(0.96); }
+    button:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+    button.success { background: #065f46; color: #fff; border-color: #065f46; }
+
+    .icon-check { display: none; }
+    button.success .icon-copy { display: none; }
+    button.success .icon-check { display: inline-block; }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+  </style>
+</head>
+<body>
+  <h1>Palette Sandbox 🎨</h1>
+  <p>Micro-UX: Enhanced "Copy to Clipboard" with tactile feedback.</p>
+  <div class="box">
+    <code id="command-code">pnpm add @palette/ux</code>
+    <button id="copy-button" aria-label="Copy command">
+      <svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      <svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span id="button-text">Copy</span>
+    </button>
+  </div>
+  <div id="announcement" aria-live="polite" class="sr-only"></div>
+  <script>
+    const copyButton = document.getElementById('copy-button'),
+          buttonText = document.getElementById('button-text'),
+          announcement = document.getElementById('announcement'),
+          content = document.getElementById('command-code').textContent;
+    let timeoutId;
+    copyButton.onclick = () => {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(content).then(() => {
+        if (timeoutId) clearTimeout(timeoutId);
+        buttonText.textContent = 'Copied!';
+        copyButton.classList.add('success');
+        copyButton.setAttribute('aria-label', 'Command copied');
+        announcement.textContent = 'Copied to clipboard';
+        timeoutId = setTimeout(() => {
+          buttonText.textContent = 'Copy';
+          copyButton.classList.remove('success');
+          copyButton.setAttribute('aria-label', 'Copy command');
+          announcement.textContent = '';
+          timeoutId = null;
+        }, 2000);
+      });
+    };
+  </script>
+</body>
+</html>
