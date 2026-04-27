@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-27 - Search Error Feedback with Shake Animation
+**Learning:** When a search returns no results, providing only a text message can be subtle. A physical "shake" animation combined with a high-contrast color change (e.g., to red #dc2626) on the search bar provides immediate, non-verbal feedback that an error or "no match" state has occurred. Consolidating DOM elements at the top of the script scope prevents reference errors and ensures reliable feedback.
+**Action:** Use a combination of visual (color), physical (animation), and textual (empty state message) cues to communicate "no results" states in search interfaces.
