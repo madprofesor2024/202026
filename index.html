@@ -104,13 +104,17 @@
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
+      const terms = q.toLowerCase().split(/\s+/).filter(t => t);
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const txt = target.textContent.toLowerCase();
+        const m = !v || terms.every(t => txt.includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
         if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+          const pattern = terms.slice().sort((a, b) => b.length - a.length)
+            .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+          const regex = new RegExp(`(${pattern})`, 'gi');
           target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
         } else {
           target.innerHTML = target.dataset.original;
