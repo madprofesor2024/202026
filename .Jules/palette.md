@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Order-Independent Multi-Word Search for Flexible Discovery
+**Learning:** Rigid, exact-string search often fails user expectations when they remember multiple fragments of a command or text but not their exact sequence. Implementing order-independent multi-word search (using AND logic for terms) significantly improves the robustness of the search experience and allows for more natural, flexible discovery.
+**Action:** For filtering interfaces, split the search query into individual terms and ensure each term is present in the target content, rather than matching the query as a single literal string.
