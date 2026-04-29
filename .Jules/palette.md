@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-29 - Multi-Modal Feedback for Error States and OS-Awareness
+**Learning:** A "no results" state in search is essentially a soft error. Combining high-contrast visual cues (red color theme) with tactile feedback (shake animation) provides immediate, unambiguous confirmation of the state. Furthermore, tailoring keyboard shortcut hints to the user's OS (e.g., ⌘K vs Ctrl+K) reduces cognitive load and makes the interface feel natively integrated.
+**Action:** Use multi-modal feedback (color + animation) for empty states and programmatically adjust UI labels to match platform-specific conventions.

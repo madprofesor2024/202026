@@ -65,6 +65,16 @@
 
     mark { background: #fef08a; border-radius: 2px; padding: 0 1px; color: inherit; transition: background 0.2s ease; }
 
+    .search-container.no-results .search-icon { color: #dc2626; }
+    .search-container.no-results #search:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+    .shake { animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
   </style>
 </head>
@@ -97,7 +107,13 @@
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
-    const ui = () => {
+
+    const isMac = /Mac|iPhone|iPod|iPad|iPhone|iPad|iPod/.test(navigator.userAgent || navigator.platform);
+    hint.textContent = isMac ? '⌘K' : 'Ctrl+K';
+    search.setAttribute('aria-keyshortcuts', `/ ${isMac ? 'Meta+K' : 'Control+K'}`);
+
+    let lastMatches = -1;
+    const ui = (e) => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
       hint.style.opacity = (v || f) ? '0' : '1';
@@ -121,10 +137,19 @@
         searchTerm.textContent = search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
+        search.parentElement.classList.add('no-results');
+        if (e && e.type === 'input' && lastMatches !== 0) {
+          search.classList.remove('shake');
+          void search.offsetWidth;
+          search.classList.add('shake');
+        }
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
+        search.parentElement.classList.remove('no-results');
+        search.classList.remove('shake');
       }
+      lastMatches = matches;
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
