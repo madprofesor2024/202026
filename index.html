@@ -66,6 +66,29 @@
     mark { background: #fef08a; border-radius: 2px; padding: 0 1px; color: inherit; transition: background 0.2s ease; }
 
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+    .search-container.shake { animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+    .search-container.no-results .search-icon { color: #dc2626; }
+    .search-container.no-results #search:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #no-results:not(.sr-only) {
+      display: block !important;
+      margin-top: 1rem;
+      color: #64748b;
+      font-size: 0.875rem;
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    #no-results.sr-only { display: none; }
+    #search-term { font-weight: 500; color: #1e293b; }
   </style>
 </head>
 <body>
@@ -88,15 +111,16 @@
       <span id="button-text">Copy</span>
     </button>
   </div>
-  <p id="no-results" class="sr-only" style="display: none; position: static; width: auto; height: auto; clip: auto; margin-top: 1rem; color: #64748b; font-size: 0.875rem;">
-    No matches found for "<span id="search-term" style="font-weight: 500; color: #1e293b;"></span>".
+  <p id="no-results" class="sr-only">
+    No matches found for "<span id="search-term"></span>".
     <button id="reset-search" class="link-btn">Clear search</button>
   </p>
   <div id="announcement" aria-live="polite" class="sr-only"></div>
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          ann = document.getElementById('announcement');
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,19 +141,26 @@
         }
         if (m) matches++;
       });
+      const wasEmpty = noResults.classList.contains('sr-only') === false;
       if (v && matches === 0) {
-        searchTerm.textContent = search.value;
-        noResults.style.display = 'block';
+        const trimmed = q.trim();
+        searchTerm.textContent = trimmed.length > 32 ? trimmed.substring(0, 32) + '...' : (trimmed || q);
         noResults.classList.remove('sr-only');
+        search.parentElement.classList.add('no-results');
+        if (!wasEmpty) {
+          search.parentElement.classList.remove('shake');
+          void search.parentElement.offsetWidth;
+          search.parentElement.classList.add('shake');
+        }
       } else {
-        noResults.style.display = 'none';
         noResults.classList.add('sr-only');
+        search.parentElement.classList.remove('no-results', 'shake');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
@@ -137,7 +168,7 @@
       const isSearchShortcut = e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key === 'k');
       if (isSearchShortcut && !ed) { e.preventDefault(); search.focus(); }
       if (e.key === 'Escape' && document.activeElement === search) {
-        if (search.value) { search.value = ''; ui(); } else search.blur();
+        if (search.value) { search.value = ''; ui(); ann.textContent = 'Search cleared'; } else search.blur();
       }
       if (e.key === 'ArrowDown' && document.activeElement === search) {
         const first = [code, btn, resetBtn].find(el => el.offsetParent !== null);
@@ -149,7 +180,7 @@
     });
 
     const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
+          code = document.getElementById('command-code');
     let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
