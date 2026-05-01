@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-05-01 - Robust Multi-word Search and Accessible Reset Feedback
+**Learning:** Order-independent multi-word search improves search flexibility. When implementing this in vanilla JS, splitting the query into terms and ensuring all terms match via `.every()` is effective. For highlighting, sorting terms by length descending prevents partial replacement issues. Additionally, in reset functions, setting a success announcement (e.g., 'Search cleared') *after* the general UI update ensures the specific feedback isn't overwritten by automated status updates like match counts.
+**Action:** Implement order-independent matching for search inputs and ensure manual accessibility announcements are sequenced to have priority over automated ones during state resets.
