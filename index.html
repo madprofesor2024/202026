@@ -98,38 +98,52 @@
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
     const ui = () => {
-      const q = search.value, v = q.length > 0, f = document.activeElement === search;
-      clear.classList.toggle('visible', v);
-      hint.style.opacity = (v || f) ? '0' : '1';
-      search.parentElement.classList.toggle('has-query', v);
+      const query = search.value,
+        hasQuery = query.length > 0,
+        isFocused = document.activeElement === search;
+      clear.classList.toggle('visible', hasQuery);
+      hint.style.opacity = hasQuery || isFocused ? '0' : '1';
+      search.parentElement.classList.toggle('has-query', hasQuery);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
-      items.forEach(el => {
+      const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+      items.forEach((el) => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const text = target.textContent.toLowerCase();
+        const m = !hasQuery || terms.every((t) => text.includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        if (hasQuery && m) {
+          const pattern = terms
+            .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .sort((a, b) => b.length - a.length)
+            .join('|');
+          const regex = new RegExp(`(${pattern})`, 'gi');
           target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
         } else {
           target.innerHTML = target.dataset.original;
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      if (hasQuery && matches === 0) {
+        const val = search.value.trim();
+        searchTerm.textContent = val.length > 32 ? val.substring(0, 32) + '...' : val;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
       }
-      ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
+      ann.textContent = hasQuery ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => {
+      search.value = '';
+      search.focus();
+      ui();
+      ann.textContent = 'Search cleared';
+    };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
