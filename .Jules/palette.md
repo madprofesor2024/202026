@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-05-02 - Order-Independent Multi-Word Search and Safe Highlighting
+**Learning:** Users often search using multiple keywords in no particular order. Supporting multi-term search (AND logic) and highlighting each term individually significantly improves search effectiveness. However, when implementing highlighting via `innerHTML`, it's critical to use a regex that distinguishes between text nodes and HTML tags to prevent DOM corruption if a search term matches an attribute or tag name.
+**Action:** Implement order-independent filtering using `.every()` and use a tag-aware regex for safe `innerHTML` highlighting.

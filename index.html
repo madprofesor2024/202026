@@ -99,6 +99,7 @@
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
+      const terms = q.toLowerCase().split(/\s+/).filter(t => t.length > 0);
       clear.classList.toggle('visible', v);
       hint.style.opacity = (v || f) ? '0' : '1';
       search.parentElement.classList.toggle('has-query', v);
@@ -107,11 +108,15 @@
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const text = target.textContent.toLowerCase();
+        const m = !v || terms.every(t => text.includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-          target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
+        if (v && m && terms.length > 0) {
+          const sortedTerms = [...new Set(terms)].sort((a, b) => b.length - a.length);
+          const regex = new RegExp(`(${sortedTerms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+          target.innerHTML = target.dataset.original.replace(/(<[^>]+>)|([^<]+)/g, (match, tag, text) =>
+            tag || text.replace(regex, '<mark>$1</mark>')
+          );
         } else {
           target.innerHTML = target.dataset.original;
         }
