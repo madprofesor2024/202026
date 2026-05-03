@@ -10,9 +10,11 @@
     .search-container { position: relative; display: flex; align-items: center; margin-bottom: 1rem; max-width: 320px; color: #64748b; }
     .search-icon { position: absolute; left: 10px; pointer-events: none; transition: color 0.2s ease; }
     .search-container:focus-within .search-icon, .search-container.has-query .search-icon { color: #3b82f6; }
+    .search-container.no-results-state:focus-within .search-icon, .search-container.no-results-state.has-query .search-icon { color: #dc2626; }
     #search { width: 100%; padding: 8px 36px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
     #search:hover { border-color: #94a3b8; }
     #search:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .search-container.no-results-state #search:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
     #search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
     .kbd-hint { position: absolute; right: 34px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s; }
     .clear-btn { position: absolute; right: 6px; opacity: 0; visibility: hidden; pointer-events: none; border: none; background: transparent; color: #334155; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(0.8); }
@@ -121,9 +123,13 @@
         searchTerm.textContent = search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
+        search.parentElement.classList.add('no-results-state');
+        search.setAttribute('aria-invalid', 'true');
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
+        search.parentElement.classList.remove('no-results-state');
+        search.setAttribute('aria-invalid', 'false');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
