@@ -8,13 +8,17 @@
     body { padding: 2rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }
     h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
     .search-container { position: relative; display: flex; align-items: center; margin-bottom: 1rem; max-width: 320px; color: #64748b; }
-    .search-icon { position: absolute; left: 10px; pointer-events: none; transition: color 0.2s ease; }
+    .search-icon { position: absolute; left: 10px; pointer-events: auto; cursor: text; transition: color 0.2s ease; }
     .search-container:focus-within .search-icon, .search-container.has-query .search-icon { color: #3b82f6; }
+    .no-results-state .search-icon { color: #dc2626; }
     #search { width: 100%; padding: 8px 36px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
     #search:hover { border-color: #94a3b8; }
     #search:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .no-results-state #search:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
     #search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
-    .kbd-hint { position: absolute; right: 34px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s; }
+    .kbd-hint { position: absolute; right: 34px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s, visibility 0.2s; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
     .clear-btn { position: absolute; right: 6px; opacity: 0; visibility: hidden; pointer-events: none; border: none; background: transparent; color: #334155; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(0.8); }
     .clear-btn.visible { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
     .clear-btn:hover { background: #f1f5f9; color: #0f172a; }
@@ -101,6 +105,7 @@
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
       hint.style.opacity = (v || f) ? '0' : '1';
+      hint.style.visibility = (v || f) ? 'hidden' : 'visible';
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
@@ -117,6 +122,14 @@
         }
         if (m) matches++;
       });
+      const isError = v && matches === 0;
+      search.parentElement.classList.toggle('no-results-state', isError);
+      search.setAttribute('aria-invalid', isError);
+      if (isError && !noResults.offsetParent) {
+        search.parentElement.classList.remove('shake');
+        void search.parentElement.offsetWidth;
+        search.parentElement.classList.add('shake');
+      }
       if (v && matches === 0) {
         searchTerm.textContent = search.value;
         noResults.style.display = 'block';
@@ -129,7 +142,8 @@
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    document.querySelector('.search-icon').addEventListener('click', () => search.focus());
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
