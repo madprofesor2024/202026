@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-05-05 - Synchronized Search Error States for Accessibility and Feedback
+**Learning:** Synchronizing the visual error state (e.g., turning the search icon and focus ring red) with programmatic accessibility attributes like `aria-invalid="true"` creates a cohesive and unambiguous experience for both sighted and screen reader users when a search yields no results. This immediate, multi-modal feedback prevents confusion and signals that the current state is an "error" or "empty" condition that requires user action (like clearing or modifying the query).
+**Action:** For search-like inputs, always synchronize visual error cues with appropriate ARIA attributes to ensure a consistent and accessible feedback loop.
