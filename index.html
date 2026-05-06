@@ -117,7 +117,13 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
+      const error = v && matches === 0;
+      search.setAttribute('aria-invalid', error);
+      search.style.borderColor = error ? '#dc2626' : '';
+      search.style.boxShadow = (error && f) ? '0 0 0 3px rgba(220, 38, 38, 0.2)' : '';
+      document.querySelector('.search-icon').style.color = error ? '#dc2626' : '';
+
+      if (error) {
         searchTerm.textContent = search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
