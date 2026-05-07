@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-05-07 - UX Error Affordance and Accessibility for No Results
+**Learning:** Synchronizing the visual state (e.g., changing search icon and input border to red #dc2626) with accessibility attributes (setting aria-invalid="true") when no matches are found creates a cohesive and unambiguous error state. Using a dedicated CSS class for this state, rather than inline JavaScript styles, ensures maintainability and adherence to project constraints. Additionally, announcing "Search cleared" via an ARIA live region during resets provides essential confirmation for screen reader users.
+**Action:** Implement visual error states by toggling semantic classes (like .invalid) on a shared parent container and always pair visual resets with descriptive accessibility announcements.
