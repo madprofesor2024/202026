@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Advanced Search: Multi-word Support and Tag-Aware Highlighting
+**Learning:** Simple substring matching is often insufficient for user intent. Implementing multi-word search (AND logic) provides a more intuitive experience. However, robust highlighting requires a tag-aware strategy to prevent injecting `<mark>` tags into HTML attributes or breaking the DOM structure, especially when dealing with elements that might contain internal HTML.
+**Action:** Use a tag-aware regex (e.g., `/(<[^>]+>)|([^<]+)/g`) when applying highlighting via `innerHTML` to ensure replacements only occur in text nodes.
