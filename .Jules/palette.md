@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Synchronized Error States for Zero-Result Search
+**Learning:** Providing immediate, synchronized visual and semantic feedback when a live search returns zero results prevents user confusion. By changing the color of both the search icon and the input focus ring to a semantic error color (e.g., red) and setting `aria-invalid="true"`, we create a cohesive signal that the current query has no matches, reinforcing the textual "No results" message.
+**Action:** When a live search filter results in an empty set, apply a semantic error state to the search input group and communicate the state programmatically via ARIA attributes.
