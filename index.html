@@ -96,7 +96,9 @@
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
+          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -104,20 +106,23 @@
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
+      const terms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const hasTerms = terms.length > 0;
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const m = !hasTerms || terms.every(t => target.textContent.toLowerCase().includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-          target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
+        if (hasTerms && m) {
+          const pattern = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).sort((a, b) => b.length - a.length).join('|');
+          const regex = new RegExp(`(<[^>]+>)|(${pattern})`, 'gi');
+          target.innerHTML = target.dataset.original.replace(regex, (match, tag, term) => tag || `<mark>${term}</mark>`);
         } else {
           target.innerHTML = target.dataset.original;
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
+      if (hasTerms && matches === 0) {
         searchTerm.textContent = search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
@@ -125,7 +130,7 @@
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
       }
-      ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
+      ann.textContent = hasTerms ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
@@ -148,8 +153,6 @@
       }
     });
 
-    const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
