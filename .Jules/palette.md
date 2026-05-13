@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-05-13 - State-Aware Search Feedback and Accessibility
+**Learning:** Providing visual and haptic-like (shake) feedback when a search returns zero results immediately alerts the user to an error state. By triggering the animation only on the transition to zero matches (using a `lastMatchCount` tracker), we avoid repetitive and annoying animations as the user continues to refine an already-failing query. Synchronizing the icon color with the input focus ring using a semantic `.invalid` class ensures a cohesive and accessible error state.
+**Action:** Use a "previous state" variable to gate non-essential animations. Synchronize multiple UI elements (icons, borders) via a shared parent state class to communicate error conditions clearly.
