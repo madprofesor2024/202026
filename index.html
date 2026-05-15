@@ -103,14 +103,15 @@
       hint.style.opacity = (v || f) ? '0' : '1';
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
+      const terms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const regex = terms.length ? new RegExp(`(${terms.sort((a, b) => b.length - a.length).map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi') : null;
       let matches = 0;
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const m = !v || terms.every(t => target.textContent.toLowerCase().includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        if (v && m && regex) {
           target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
         } else {
           target.innerHTML = target.dataset.original;
