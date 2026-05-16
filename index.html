@@ -8,11 +8,19 @@
     body { padding: 2rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }
     h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
     .search-container { position: relative; display: flex; align-items: center; margin-bottom: 1rem; max-width: 320px; color: #64748b; }
-    .search-icon { position: absolute; left: 10px; pointer-events: none; transition: color 0.2s ease; }
+    .search-icon { position: absolute; left: 10px; pointer-events: auto; cursor: text; transition: color 0.2s ease; }
     .search-container:focus-within .search-icon, .search-container.has-query .search-icon { color: #3b82f6; }
+    .search-container.invalid .search-icon { color: #dc2626; }
     #search { width: 100%; padding: 8px 36px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
     #search:hover { border-color: #94a3b8; }
     #search:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    #search.invalid { border-color: #dc2626; }
+    #search.invalid:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    @media (prefers-reduced-motion: no-preference) {
+      .search-container.shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
+    }
     #search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
     .kbd-hint { position: absolute; right: 34px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s; }
     .clear-btn { position: absolute; right: 6px; opacity: 0; visibility: hidden; pointer-events: none; border: none; background: transparent; color: #334155; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(0.8); }
@@ -96,29 +104,36 @@
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          searchIcon = document.querySelector('.search-icon');
+    let lastMatchCount = 1;
     const ui = () => {
-      const q = search.value, v = q.length > 0, f = document.activeElement === search;
+      const q = search.value.trim(), v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
       hint.style.opacity = (v || f) ? '0' : '1';
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
+      const regex = v ? new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi') : null;
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
         const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-          target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
-        } else {
-          target.innerHTML = target.dataset.original;
-        }
+        target.innerHTML = (v && m) ? target.dataset.original.replace(regex, '<mark>$1</mark>') : target.dataset.original;
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const isInvalid = v && matches === 0;
+      search.classList.toggle('invalid', isInvalid);
+      search.parentElement.classList.toggle('invalid', isInvalid);
+      search.setAttribute('aria-invalid', isInvalid);
+      if (isInvalid && lastMatchCount > 0) {
+        search.parentElement.classList.remove('shake');
+        void search.parentElement.offsetWidth;
+        search.parentElement.classList.add('shake');
+      }
+      if (isInvalid) {
+        searchTerm.textContent = q.length > 32 ? q.slice(0, 32).trim() + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
@@ -126,8 +141,10 @@
         noResults.classList.add('sr-only');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
+      lastMatchCount = matches;
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
+    searchIcon.addEventListener('click', () => search.focus());
     search.addEventListener('focus', () => search.select());
     const reset = () => { search.value = ''; search.focus(); ui(); };
     clear.addEventListener('click', reset);
