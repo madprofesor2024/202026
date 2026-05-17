@@ -66,6 +66,10 @@
     mark { background: #fef08a; border-radius: 2px; padding: 0 1px; color: inherit; transition: background 0.2s ease; }
 
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+    .search-container.invalid #search { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+    .search-container.invalid .search-icon { color: #dc2626; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    @media (prefers-reduced-motion: no-preference) { .shake { animation: shake 0.2s ease-in-out 0s 2; } }
   </style>
 </head>
 <body>
@@ -96,7 +100,10 @@
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
+          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
+    let lastMatches = 1;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,8 +124,16 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const isInvalid = v && matches === 0;
+      search.parentElement.classList.toggle('invalid', isInvalid);
+      search.setAttribute('aria-invalid', isInvalid);
+      if (isInvalid && lastMatches > 0) {
+        search.parentElement.classList.remove('shake');
+        void search.parentElement.offsetWidth;
+        search.parentElement.classList.add('shake');
+      }
+      if (isInvalid) {
+        searchTerm.textContent = q.length > 32 ? q.substring(0, 32).trim() + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
@@ -126,6 +141,7 @@
         noResults.classList.add('sr-only');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
+      lastMatches = matches;
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
@@ -148,8 +164,6 @@
       }
     });
 
-    const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
