@@ -65,6 +65,17 @@
 
     mark { background: #fef08a; border-radius: 2px; padding: 0 1px; color: inherit; transition: background 0.2s ease; }
 
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-4px); }
+        75% { transform: translateX(4px); }
+      }
+      .shake { animation: shake 0.2s ease-in-out 0s 2; }
+    }
+    .search-container.invalid #search { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+    .search-container.invalid .search-icon { color: #dc2626; }
+
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
   </style>
 </head>
@@ -96,7 +107,10 @@
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
+          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
+    let tid, lastMatchCount = 1;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,8 +131,18 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const noMatches = v && matches === 0;
+      search.parentElement.classList.toggle('invalid', noMatches);
+      search.setAttribute('aria-invalid', noMatches);
+      if (noMatches && lastMatchCount > 0) {
+        search.parentElement.classList.remove('shake');
+        void search.parentElement.offsetWidth;
+        search.parentElement.classList.add('shake');
+      }
+      lastMatchCount = matches;
+      if (noMatches) {
+        const term = search.value.trim();
+        searchTerm.textContent = term.length > 32 ? term.substring(0, 32) + '...' : term;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
@@ -129,7 +153,7 @@
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
@@ -148,9 +172,6 @@
       }
     });
 
-    const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
-    let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
       navigator.clipboard.writeText(code.textContent).then(() => {
