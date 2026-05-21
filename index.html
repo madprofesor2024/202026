@@ -98,20 +98,22 @@
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
     const ui = () => {
-      const q = search.value, v = q.length > 0, f = document.activeElement === search;
-      clear.classList.toggle('visible', v);
-      hint.style.opacity = (v || f) ? '0' : '1';
+      const q = search.value.trim().toLowerCase(), terms = q.split(/\s+/).filter(Boolean),
+            v = terms.length > 0, f = document.activeElement === search;
+      clear.classList.toggle('visible', search.value.length > 0);
+      hint.style.opacity = (search.value.length > 0 || f) ? '0' : '1';
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const txt = target.textContent.toLowerCase();
+        const m = !v || terms.every(t => txt.includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
         if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-          target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
+          const pattern = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).sort((a, b) => b.length - a.length).join('|');
+          target.innerHTML = target.dataset.original.replace(new RegExp(`(${pattern})`, 'gi'), '<mark>$1</mark>');
         } else {
           target.innerHTML = target.dataset.original;
         }

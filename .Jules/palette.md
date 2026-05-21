@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Multi-word Search and Length-based Highlight Sorting
+**Learning:** Implementing multi-word search improves user efficiency by allowing more specific queries. When highlighting multiple terms in a single pass using a combined regex OR pattern (`term1|term2`), it is critical to sort terms by descending length. This ensures that longer terms are matched first, preventing a shorter term (which might be a substring of a longer term) from "stealing" the match and potentially breaking the highlighting or leaving parts of the longer term unstyled.
+**Action:** Always sort search terms by length (descending) before constructing a combined regular expression for highlighting to ensure maximum match coverage.
