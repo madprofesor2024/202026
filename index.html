@@ -10,9 +10,12 @@
     .search-container { position: relative; display: flex; align-items: center; margin-bottom: 1rem; max-width: 320px; color: #64748b; }
     .search-icon { position: absolute; left: 10px; pointer-events: none; transition: color 0.2s ease; }
     .search-container:focus-within .search-icon, .search-container.has-query .search-icon { color: #3b82f6; }
+    .search-container.invalid .search-icon { color: #dc2626; }
     #search { width: 100%; padding: 8px 36px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
     #search:hover { border-color: #94a3b8; }
     #search:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    #search.invalid { border-color: #dc2626; }
+    #search.invalid:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
     #search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
     .kbd-hint { position: absolute; right: 34px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s; }
     .clear-btn { position: absolute; right: 6px; opacity: 0; visibility: hidden; pointer-events: none; border: none; background: transparent; color: #334155; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(0.8); }
@@ -65,6 +68,13 @@
 
     mark { background: #fef08a; border-radius: 2px; padding: 0 1px; color: inherit; transition: background 0.2s ease; }
 
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+      .shake { animation: shake 0.15s ease-in-out 0s 2; }
+      @keyframes fadeInUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+      #no-results:not(.sr-only) { animation: fadeInUp 0.2s ease-out; }
+    }
+
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
   </style>
 </head>
@@ -97,6 +107,7 @@
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+    let lastMatchCount = 1;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,14 +128,25 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const isInvalid = v && matches === 0;
+      search.parentElement.classList.toggle('invalid', isInvalid);
+      search.classList.toggle('invalid', isInvalid);
+      search.setAttribute('aria-invalid', isInvalid);
+      if (isInvalid) {
+        searchTerm.textContent = q.length > 32 ? q.trim().substring(0, 32) + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
+        if (lastMatchCount > 0) {
+          search.classList.remove('shake');
+          void search.offsetWidth;
+          search.classList.add('shake');
+        }
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
+        search.classList.remove('shake');
       }
+      lastMatchCount = matches;
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
