@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-05-25 - Holistic Zero-Result Feedback and OS-Aware Shortcuts
+**Learning:** Combining visual (red color), tactile (shake animation), and semantic (aria-invalid) feedback when a search hits zero results creates a robust and unambiguous error state. Furthermore, advertising keyboard shortcuts (like Ctrl+K/⌘K) is only effective if they are actually implemented and adapted to the user's operating system, providing a truly native and responsive experience.
+**Action:** Always implement the shortcuts you advertise and use multi-sensory feedback (visual + motion + semantic) to communicate state transitions effectively.
