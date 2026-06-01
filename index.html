@@ -65,6 +65,26 @@
 
     mark { background: #fef08a; border-radius: 2px; padding: 0 1px; color: inherit; transition: background 0.2s ease; }
 
+    .search-container.invalid #search { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+    .search-container.invalid .search-icon { color: #dc2626 !important; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+      #no-results:not(.sr-only) { animation: fadeInUp 0.3s ease-out; }
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
   </style>
 </head>
@@ -97,6 +117,7 @@
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+    let lastMatches = 1;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,7 +138,16 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
+      const isError = v && matches === 0;
+      search.parentElement.classList.toggle('invalid', isError);
+      search.setAttribute('aria-invalid', isError);
+      if (isError && lastMatches > 0) {
+        search.classList.remove('shake');
+        void search.offsetWidth;
+        search.classList.add('shake');
+      }
+      lastMatches = matches;
+      if (isError) {
         searchTerm.textContent = search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
