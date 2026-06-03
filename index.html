@@ -65,6 +65,11 @@
 
     mark { background: #fef08a; border-radius: 2px; padding: 0 1px; color: inherit; transition: background 0.2s ease; }
 
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    @media (prefers-reduced-motion: no-preference) { .shake { animation: shake 0.2s ease-in-out 0s 2; } }
+    .search-container.invalid #search { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+    .search-container.invalid .search-icon { color: #dc2626 !important; }
+
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
   </style>
 </head>
@@ -97,6 +102,7 @@
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+    let lastM = 1;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -118,18 +124,26 @@
         if (m) matches++;
       });
       if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+        if (lastM > 0) {
+          search.parentElement.classList.add('shake');
+          setTimeout(() => search.parentElement.classList.remove('shake'), 400);
+        }
+        searchTerm.textContent = q.length > 32 ? q.trim().slice(0, 32) + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
       }
+      search.parentElement.classList.toggle('invalid', v && matches === 0);
+      search.ariaInvalid = (v && matches === 0);
+      search.setAttribute('aria-errormessage', v && matches === 0 ? 'no-results' : '');
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
+      lastM = matches;
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); lastM = 1; ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
