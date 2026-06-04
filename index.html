@@ -66,6 +66,17 @@
     mark { background: #fef08a; border-radius: 2px; padding: 0 1px; color: inherit; transition: background 0.2s ease; }
 
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-4px); }
+        40%, 80% { transform: translateX(4px); }
+      }
+      .shake { animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+    }
+    .search-container.invalid .search-icon { color: #dc2626; }
+    .search-container.invalid #search { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
   </style>
 </head>
 <body>
@@ -97,6 +108,7 @@
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+    let lastMatches = 1;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,8 +129,17 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const isInvalid = v && matches === 0;
+      search.parentElement.classList.toggle('invalid', isInvalid);
+      search.setAttribute('aria-invalid', isInvalid ? 'true' : 'false');
+      search.setAttribute('aria-errormessage', isInvalid ? 'no-results' : '');
+      if (isInvalid && lastMatches > 0) {
+        search.parentElement.classList.remove('shake');
+        void search.parentElement.offsetWidth;
+        search.parentElement.classList.add('shake');
+      }
+      if (isInvalid) {
+        searchTerm.textContent = q.length > 32 ? q.substring(0, 32) + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
@@ -126,10 +147,11 @@
         noResults.classList.add('sr-only');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
+      lastMatches = matches;
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; lastMatches = 1; search.focus(); ui(); };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
