@@ -13,7 +13,19 @@
     #search { width: 100%; padding: 8px 36px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
     #search:hover { border-color: #94a3b8; }
     #search:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .search-container.invalid #search { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+    .search-container.invalid .search-icon { color: #dc2626 !important; }
     #search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+      @keyframes shake {
+        10%, 90% { transform: translateX(-1px); }
+        20%, 80% { transform: translateX(2px); }
+        30%, 50%, 70% { transform: translateX(-4px); }
+        40%, 60% { transform: translateX(4px); }
+      }
+    }
     .kbd-hint { position: absolute; right: 34px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s; }
     .clear-btn { position: absolute; right: 6px; opacity: 0; visibility: hidden; pointer-events: none; border: none; background: transparent; color: #334155; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(0.8); }
     .clear-btn.visible { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
@@ -73,7 +85,7 @@
   <div class="search-container">
     <label for="search" class="sr-only">Search</label>
     <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-    <input type="search" id="search" placeholder="Search..." autocomplete="off" enterkeyhint="search" spellcheck="false" autocapitalize="none" autocorrect="off" aria-keyshortcuts="/ Control+K Meta+K">
+    <input type="search" id="search" placeholder="Search..." autocomplete="off" enterkeyhint="search" spellcheck="false" autocapitalize="none" autocorrect="off" aria-keyshortcuts="/ Control+K Meta+K" aria-invalid="false" aria-errormessage="no-results">
     <span class="kbd-hint" id="kbd-hint" aria-hidden="true">/</span>
     <button id="clear-search" type="button" class="clear-btn" aria-label="Clear search (Esc)" title="Clear search (Esc)" aria-keyshortcuts="Escape">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -97,6 +109,7 @@
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+    let lastMatches = 1;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,8 +130,16 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const isError = v && matches === 0;
+      if (isError && lastMatches > 0) {
+        search.classList.remove('shake');
+        void search.offsetWidth;
+        search.classList.add('shake');
+      }
+      search.parentElement.classList.toggle('invalid', isError);
+      search.setAttribute('aria-invalid', isError);
+      if (isError) {
+        searchTerm.textContent = q.length > 32 ? q.substring(0, 32) + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
@@ -126,10 +147,11 @@
         noResults.classList.add('sr-only');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
+      lastMatches = matches;
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
