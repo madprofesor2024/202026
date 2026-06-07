@@ -19,6 +19,19 @@
     .clear-btn.visible { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
     .clear-btn:hover { background: #f1f5f9; color: #0f172a; }
     .clear-btn:active { transform: scale(0.92); }
+
+    .search-container.invalid #search { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+    .search-container.invalid .search-icon { color: #dc2626 !important; }
+    @media (prefers-reduced-motion: no-preference) {
+      .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+      @keyframes shake {
+        10%, 90% { transform: translate3d(-1px, 0, 0); }
+        20%, 80% { transform: translate3d(2px, 0, 0); }
+        30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+        40%, 60% { transform: translate3d(4px, 0, 0); }
+      }
+    }
+
     .box { display: flex; align-items: center; gap: 8px; margin-top: 1.5rem; }
     code {
       background: #f1f5f9;
@@ -97,6 +110,7 @@
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+    let lastMatches = 1;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,19 +131,31 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+
+      const isInvalid = v && matches === 0;
+      search.parentElement.classList.toggle('invalid', isInvalid);
+      search.setAttribute('aria-invalid', isInvalid);
+      search.setAttribute('aria-errormessage', isInvalid ? 'no-results' : '');
+
+      if (isInvalid) {
+        searchTerm.textContent = q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
+        if (lastMatches > 0) {
+          search.parentElement.classList.remove('shake');
+          void search.parentElement.offsetWidth;
+          search.parentElement.classList.add('shake');
+        }
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
+      lastMatches = matches;
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { lastMatches = 1; search.value = ''; search.focus(); ui(); };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {

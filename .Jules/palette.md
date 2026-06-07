@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Multi-Modal Search Error Feedback
+**Learning:** Combining visual (red #dc2626), tactile (shake animation), and semantic (aria-invalid="true", aria-errormessage) feedback for zero search results provides a robust, unambiguous, and accessible error state. Restricting the shake animation to the initial transition from matches to zero results prevents user fatigue while still providing a strong cue for the state change.
+**Action:** When implementing search or validation, use a combination of color, animation, and ARIA attributes to communicate errors, ensuring animations are motion-sensitive and triggered only on state transitions.
