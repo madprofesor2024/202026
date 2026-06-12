@@ -96,7 +96,10 @@
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
+          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
+    let tid;
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -117,8 +120,11 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const isInvalid = v && matches === 0;
+      search.setAttribute('aria-invalid', isInvalid);
+      search.setAttribute('aria-errormessage', isInvalid ? 'no-results' : '');
+      if (isInvalid) {
+        searchTerm.textContent = q.length > 32 ? q.substring(0, 32) + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
@@ -148,9 +154,6 @@
       }
     });
 
-    const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
-    let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
       navigator.clipboard.writeText(code.textContent).then(() => {
