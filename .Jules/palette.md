@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Advanced Search Logic and Semantic Error Feedback
+**Learning:** Users expect search to be forgiving and intelligent; implementing order-independent multi-word search (AND logic) significantly improves the success rate for complex queries. Furthermore, using `aria-invalid="true"` paired with `aria-errormessage` when no results are found provides a standardized way to communicate "search failure" to assistive technologies, making the error state as accessible as the success state.
+**Action:** Default to multi-term search logic for enhanced flexibility. Always pair visual "no results" states with semantic ARIA attributes (`aria-invalid`, `aria-errormessage`) to ensure screen reader users are immediately informed of the outcome.

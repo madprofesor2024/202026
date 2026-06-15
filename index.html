@@ -99,6 +99,7 @@
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
+      const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
       clear.classList.toggle('visible', v);
       hint.style.opacity = (v || f) ? '0' : '1';
       search.parentElement.classList.toggle('has-query', v);
@@ -107,21 +108,25 @@
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const m = !v || terms.every(t => target.textContent.toLowerCase().includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        if (v && m && terms.length) {
+          const regex = new RegExp(`(${terms.sort((a, b) => b.length - a.length).map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
           target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
         } else {
           target.innerHTML = target.dataset.original;
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const isError = v && matches === 0;
+      search.setAttribute('aria-invalid', isError ? 'true' : 'false');
+      if (isError) {
+        search.setAttribute('aria-errormessage', 'no-results');
+        searchTerm.textContent = q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
+        search.removeAttribute('aria-errormessage');
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
       }
