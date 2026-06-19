@@ -30,7 +30,7 @@
       cursor: pointer;
       transition: all 0.1s ease-in-out;
     }
-    code:hover { background: #e2e8f0; border-color: #cbd5e1; }
+    code:hover:not(.success) { background: #e2e8f0; border-color: #cbd5e1; }
     code:active { transform: scale(0.98); }
     code.success { background: #ecfdf5; border-color: #065f46; color: #065f46; }
     code:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
@@ -96,40 +96,40 @@
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
+          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     const ui = () => {
-      const q = search.value, v = q.length > 0, f = document.activeElement === search;
-      clear.classList.toggle('visible', v);
-      hint.style.opacity = (v || f) ? '0' : '1';
-      search.parentElement.classList.toggle('has-query', v);
+      const q = search.value, ts = q.trim().toLowerCase().split(/\s+/).filter(t => t), v = ts.length > 0, f = document.activeElement === search;
+      clear.classList.toggle('visible', q.length > 0);
+      hint.style.opacity = (q.length > 0 || f) ? '0' : '1';
+      search.parentElement.classList.toggle('has-query', q.length > 0);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
+      const highlightRegex = v ? new RegExp(`(${ts.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).sort((a, b) => b.length - a.length).join('|')})`, 'gi') : null;
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const m = !v || ts.every(t => target.textContent.toLowerCase().includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-          target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
-        } else {
-          target.innerHTML = target.dataset.original;
-        }
+        target.innerHTML = (v && m) ? target.dataset.original.replace(highlightRegex, '<mark>$1</mark>') : target.dataset.original;
         if (m) matches++;
       });
       if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+        searchTerm.textContent = search.value.length > 32 ? search.value.substring(0, 32) + '...' : search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
       }
+      search.setAttribute('aria-invalid', (v && matches === 0) ? 'true' : 'false');
+      search.setAttribute('aria-errormessage', (v && matches === 0) ? 'no-results' : '');
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
@@ -148,8 +148,6 @@
       }
     });
 
-    const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
