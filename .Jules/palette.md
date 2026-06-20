@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Multi-word Search and Semantic Error Feedback
+**Learning:** Order-independent multi-word search significantly improves findability by allowing users to enter terms in any sequence. Pairing this with semantic ARIA error states (aria-invalid/errormessage) and user-query truncation ensures that the interface remains accessible and visually stable even when searches fail or queries are excessively long.
+**Action:** Implement tokenized search logic for multi-word queries and always provide semantic ARIA feedback for empty states, ensuring echoed queries are truncated to preserve layout integrity.
