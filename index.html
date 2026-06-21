@@ -73,7 +73,7 @@
   <div class="search-container">
     <label for="search" class="sr-only">Search</label>
     <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-    <input type="search" id="search" placeholder="Search..." autocomplete="off" enterkeyhint="search" spellcheck="false" autocapitalize="none" autocorrect="off" aria-keyshortcuts="/ Control+K Meta+K">
+    <input type="search" id="search" placeholder="Search..." autocomplete="off" enterkeyhint="search" spellcheck="false" autocapitalize="none" autocorrect="off" aria-keyshortcuts="/ Control+K Meta+K" aria-errormessage="no-results">
     <span class="kbd-hint" id="kbd-hint" aria-hidden="true">/</span>
     <button id="clear-search" type="button" class="clear-btn" aria-label="Clear search (Esc)" title="Clear search (Esc)" aria-keyshortcuts="Escape">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -117,8 +117,10 @@
         }
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const err = v && matches === 0;
+      search.setAttribute('aria-invalid', err ? 'true' : 'false');
+      if (err) {
+        searchTerm.textContent = search.value.length > 32 ? search.value.slice(0, 32) + '...' : search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {

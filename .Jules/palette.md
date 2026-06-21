@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-06-21 - Semantic Error Feedback and Robust Empty States
+**Learning:** Providing semantic error feedback via `aria-invalid` and linking it to the empty state message with `aria-errormessage` ensures that the lack of search results is properly communicated to screen reader users as a state change. Furthermore, truncating user-echoed search terms prevents layout breakage caused by extremely long queries, maintaining UI integrity.
+**Action:** Always pair `aria-invalid` with `aria-errormessage` for empty search states and truncate user-echoed terms to preserve layout stability.
