@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Robust Multi-term Highlighting and Semantic Empty States
+**Learning:** When implementing multi-term search highlighting, sorting escaped terms by length descending in the OR-regex prevents shorter terms from segmenting and "stealing" matches from longer ones. Additionally, toggling `aria-invalid` on the search input when no results are found provides a clear semantic signal to screen readers that the current filter is unsuccessful.
+**Action:** Always sort terms by length descending in highlighting regexes and use `aria-invalid` combined with `aria-errormessage` for empty search states.
