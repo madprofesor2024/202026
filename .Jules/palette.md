@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - OS-Aware Shortcut Hints and Accessible Descriptions
+**Learning:** Static shortcut hints (like "/") are less helpful than platform-specific ones (like "⌘K" or "Ctrl+K") that users are already familiar with. Dynamically detecting the user's OS and updating these hints, while also ensuring they are linked via `aria-describedby`, significantly improves both discoverability for power users and accessibility for screen reader users.
+**Action:** Always implement OS-aware keyboard shortcut hints for primary actions like search, and ensure these hints are programmatically associated with their target elements using ARIA attributes.
