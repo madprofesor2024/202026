@@ -96,40 +96,44 @@
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
+          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
+      const ts = q.toLowerCase().split(/\s+/).filter(t => t);
       clear.classList.toggle('visible', v);
       hint.style.opacity = (v || f) ? '0' : '1';
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
+      const regex = ts.length ? new RegExp(`(${ts.sort((a, b) => b.length - a.length).map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi') : null;
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const text = target.textContent.toLowerCase();
+        const m = !ts.length || ts.every(t => text.includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-          target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
-        } else {
-          target.innerHTML = target.dataset.original;
-        }
+        target.innerHTML = (m && regex) ? target.dataset.original.replace(regex, '<mark>$1</mark>') : target.dataset.original;
         if (m) matches++;
       });
-      if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+      const err = v && matches === 0;
+      search.setAttribute('aria-invalid', err ? 'true' : 'false');
+      if (err) {
+        searchTerm.textContent = q.length > 32 ? q.slice(0, 32) + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
+        search.setAttribute('aria-errormessage', 'no-results');
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
+        search.removeAttribute('aria-errormessage');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
@@ -148,8 +152,6 @@
       }
     });
 
-    const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
