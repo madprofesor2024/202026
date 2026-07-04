@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Accessible and Smooth UI Transitions for Keyboard Hints
+**Learning:** When using `opacity` to animate the appearance of secondary UI elements like keyboard shortcut hints, they remain in the accessibility tree and can be confusing for screen reader users if they are technically "visible" but transparent. Combining `opacity` with the `visibility` property in a CSS transition ensures that the element is smoothly faded out and then completely removed from the accessibility tree (and pointer events) when it reaches 0% opacity.
+**Action:** Always pair `opacity` with `visibility` in CSS transitions for elements that should be fully hidden from all users, including those using assistive technologies, once the transition completes.
