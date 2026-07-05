@@ -99,23 +99,25 @@
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
+      const ts = q.toLowerCase().split(/\s+/).filter(t => t);
       clear.classList.toggle('visible', v);
       hint.style.opacity = (v || f) ? '0' : '1';
       search.parentElement.classList.toggle('has-query', v);
-      const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
+      const items = [...document.querySelectorAll('.box, p:not(.sr-only):not(#no-results)')];
       let matches = 0;
+      const regex = ts.length ? new RegExp(`(${ts.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).sort((a, b) => b.length - a.length).join('|')})`, 'gi') : null;
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
-        el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        const text = target.textContent.toLowerCase();
+        const isMatch = !ts.length || ts.every(t => text.includes(t));
+        el.style.display = isMatch ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
+        if (ts.length && isMatch) {
           target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
         } else {
           target.innerHTML = target.dataset.original;
         }
-        if (m) matches++;
+        if (isMatch) matches++;
       });
       if (v && matches === 0) {
         searchTerm.textContent = search.value;
