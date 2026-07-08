@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Robust Keyboard Navigation for Filtered Results
+**Learning:** In vanilla JS applications where search results are filtered using `display: none`, standard DOM queries for focusable elements may return hidden items. Using `el.offsetParent !== null` (or similar visibility checks) when filtering candidates for keyboard navigation (e.g., `ArrowDown` from a search input) ensures that the user only focuses on elements that are actually visible on the screen.
+**Action:** When implementing keyboard navigation through dynamic result sets, always verify the visibility of target elements before attempting to focus them to avoid "lost focus" scenarios.
