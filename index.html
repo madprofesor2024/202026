@@ -10,11 +10,12 @@
     .search-container { position: relative; display: flex; align-items: center; margin-bottom: 1rem; max-width: 320px; color: #64748b; }
     .search-icon { position: absolute; left: 10px; pointer-events: none; transition: color 0.2s ease; }
     .search-container:focus-within .search-icon, .search-container.has-query .search-icon { color: #3b82f6; }
-    #search { width: 100%; padding: 8px 36px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
+    #search { width: 100%; padding: 8px 72px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
     #search:hover { border-color: #94a3b8; }
     #search:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    #search[aria-invalid="true"] { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 32, 0.2); }
     #search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
-    .kbd-hint { position: absolute; right: 34px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s; }
+    .kbd-hint { position: absolute; right: 36px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: all 0.2s; }
     .clear-btn { position: absolute; right: 6px; opacity: 0; visibility: hidden; pointer-events: none; border: none; background: transparent; color: #334155; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(0.8); }
     .clear-btn.visible { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
     .clear-btn:hover { background: #f1f5f9; color: #0f172a; }
@@ -73,8 +74,8 @@
   <div class="search-container">
     <label for="search" class="sr-only">Search</label>
     <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-    <input type="search" id="search" placeholder="Search..." autocomplete="off" enterkeyhint="search" spellcheck="false" autocapitalize="none" autocorrect="off" aria-keyshortcuts="/ Control+K Meta+K">
-    <span class="kbd-hint" id="kbd-hint" aria-hidden="true">/</span>
+    <input type="search" id="search" placeholder="Search..." autocomplete="off" enterkeyhint="search" spellcheck="false" autocapitalize="none" autocorrect="off" aria-keyshortcuts="/ Control+K Meta+K" aria-describedby="kbd-hint">
+    <span class="kbd-hint" id="kbd-hint" aria-label="Keyboard shortcut: /">/</span>
     <button id="clear-search" type="button" class="clear-btn" aria-label="Clear search (Esc)" title="Clear search (Esc)" aria-keyshortcuts="Escape">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
@@ -88,29 +89,39 @@
       <span id="button-text">Copy</span>
     </button>
   </div>
-  <p id="no-results" class="sr-only" style="display: none; position: static; width: auto; height: auto; clip: auto; margin-top: 1rem; color: #64748b; font-size: 0.875rem;">
-    No matches found for "<span id="search-term" style="font-weight: 500; color: #1e293b;"></span>".
+  <p id="no-results" role="alert" class="sr-only" style="display: none; position: static; width: auto; height: auto; clip: auto; margin-top: 1rem; color: #64748b; font-size: 0.875rem;">
+    No matches found for "<span id="search-term" style="font-weight: 500; color: #1e293b; word-break: break-all;"></span>".
     <button id="reset-search" class="link-btn">Clear search</button>
   </p>
   <div id="announcement" aria-live="polite" class="sr-only"></div>
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
+          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
+
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    hint.textContent = isMac ? '⌘K' : 'Ctrl+K';
+    hint.setAttribute('aria-label', `Keyboard shortcut: ${isMac ? 'Command' : 'Control'} + K`);
+    search.setAttribute('aria-keyshortcuts', `/ ${isMac ? 'Meta' : 'Control'}+K`);
+
     const ui = () => {
-      const q = search.value, v = q.length > 0, f = document.activeElement === search;
+      const q = search.value, v = q.length > 0, ts = q.toLowerCase().split(/\s+/).filter(t => t);
       clear.classList.toggle('visible', v);
-      hint.style.opacity = (v || f) ? '0' : '1';
+      hint.style.opacity = v ? '0' : '1';
+      hint.style.visibility = v ? 'hidden' : 'visible';
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
       items.forEach(el => {
         const target = el.tagName === 'DIV' ? el.querySelector('code') || el : el;
         if (!target.dataset.original) target.dataset.original = target.innerHTML;
-        const m = !v || target.textContent.toLowerCase().includes(q.toLowerCase());
+        const m = !ts.length || ts.every(t => target.textContent.toLowerCase().includes(t));
         el.style.display = m ? (el.tagName === 'DIV' ? 'flex' : 'block') : 'none';
-        if (v && m) {
-          const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        if (ts.length && m) {
+          const sorted = [...ts].sort((a, b) => b.length - a.length);
+          const regex = new RegExp(`(${sorted.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
           target.innerHTML = target.dataset.original.replace(regex, '<mark>$1</mark>');
         } else {
           target.innerHTML = target.dataset.original;
@@ -118,20 +129,24 @@
         if (m) matches++;
       });
       if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+        searchTerm.textContent = q.length > 32 ? q.substring(0, 32) + '...' : q;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
+        search.setAttribute('aria-invalid', 'true');
+        search.setAttribute('aria-errormessage', 'no-results');
       } else {
         noResults.style.display = 'none';
         noResults.classList.add('sr-only');
+        search.removeAttribute('aria-invalid');
+        search.removeAttribute('aria-errormessage');
       }
       ann.textContent = v ? `${matches} match${matches !== 1 ? 'es' : ''} found` : '';
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
     const reset = () => { search.value = ''; search.focus(); ui(); };
-    clear.addEventListener('click', reset);
-    resetBtn.addEventListener('click', reset);
+    clear.addEventListener('click', () => { reset(); ann.textContent = 'Search cleared'; });
+    resetBtn.addEventListener('click', () => { reset(); ann.textContent = 'Search cleared'; });
     window.addEventListener('keydown', e => {
       const ed = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable;
       const isSearchShortcut = e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key === 'k');
@@ -147,9 +162,6 @@
         e.preventDefault(); search.focus();
       }
     });
-
-    const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
