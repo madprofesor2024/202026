@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Multi-word Search and OS-Aware Accessibility
+**Learning:** Order-independent multi-word search (using tokenization) feels more intuitive and powerful than simple substring matching. Combining this with OS-aware keyboard hints (⌘K vs Ctrl+K) and semantic accessibility attributes (aria-invalid, aria-errormessage, aria-describedby) creates a professional, "platform-native" feel. Sorting terms by length before regex matching prevents shorter terms from segmenting longer ones during highlighting.
+**Action:** Use tokenization for search logic and length-sorted regex for highlighting. Always detect the user's platform to provide accurate keyboard shortcut hints and accessible labels.
