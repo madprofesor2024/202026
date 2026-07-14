@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Advanced Search UX: Multi-word Filtering and Platform-Aware Hints
+**Learning:** Users often search using multiple fragments of a string in any order (e.g., "pnpm ux" for "pnpm add @palette/ux"). Implementing an order-independent multi-word search pattern using a tokenized "AND" approach significantly improves findability. Furthermore, explicitly detecting the user's OS to display native-feeling keyboard shortcut hints (⌘K vs Ctrl+K) along with descriptive ARIA labels enhances both discoverability and accessibility.
+**Action:** Use tokenized term matching for search filters and implement platform-specific UI hints and accessibility labels for keyboard shortcuts.
