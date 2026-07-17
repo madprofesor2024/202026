@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - OS-Aware Search Keyboard Shortcut Hints & Accessibility Error Linkages
+**Learning:** Hardcoding a static `/` keyboard hint for search inputs overlooks common keyboard shortcut paradigms (like `⌘K` or `Ctrl+K`) across operating systems and doesn't communicate them to assistive technologies. Additionally, when a search fails to yield results, semantic connection between the input field and the error container via `aria-invalid` and `aria-errormessage` ensures screen reader users are alerted to the error.
+**Action:** Dynamically detect operating systems to render OS-aware search hint tags (e.g., `⌘K` vs `Ctrl+K`) with clear `aria-label` attributes for screen readers, and dynamically bind search inputs with `aria-invalid` and `aria-errormessage="<error_id>"` during empty match states.
