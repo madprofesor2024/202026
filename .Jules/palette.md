@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - OS-Aware Search Hints with Robust Spacing and Accessibility
+**Learning:** Hardcoded single-character search keyboard shortcuts (like "/") can feel generic. Replacing them with dynamic, platform-aware combinations (like "⌘K" or "Ctrl+K") significantly enhances discoverability and premium feel. To accommodate multi-character hints, the input needs increased padding-right (e.g. 72px) and the hint needs right-positioning (e.g. 36px) to avoid overlapping the clear button. Associating the hint with `aria-describedby` and giving it an explicit `aria-label` ensures screen reader users also discover the shortcut.
+**Action:** Detect the operating system to render dynamic shortcut hints ("⌘K" vs "Ctrl+K"), expand container padding-right to prevent clear-button overlap, and link via `aria-describedby` with proper descriptive ARIA labels.
