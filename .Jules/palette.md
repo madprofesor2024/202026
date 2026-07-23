@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - OS-Aware Shortcut Alignment and Accessible Visibility
+**Learning:** Adding dynamic keyboard shortcut hints requires careful layout adjustments to prevent overlaps with other absolute-positioned elements like clear buttons. Ensuring the search input has adequate right padding (e.g., 72px) and the hint has a matching right offset (e.g., 36px) resolves potential overlapping. Additionally, when hiding keyboard hints visually via opacity, they must also be hidden using visibility to prevent screen reader tools from reading them when inactive.
+**Action:** Always coordinate input padding with absolute-positioned indicators, and always transition visibility along with opacity to correctly update the accessibility tree.
