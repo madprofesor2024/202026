@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Platform-Aware Shortcut Hints and Accessible Visibility Transitions
+**Learning:** Showing generic or mismatched keyboard shortcut hints (like `/`) can be confusing when users expect platform-standard keys like '⌘K' on macOS or 'Ctrl+K' on Windows. By dynamically detecting the platform, we can customize both the visual hint and its ARIA label description. Furthermore, animating keyboard hints using both 'opacity' and 'visibility' prevents them from remaining interactive or screen-reader accessible when visually hidden, and hiding them only during active typing keeps them discoverable during initial input focus.
+**Action:** Always detect OS platform to present native keyboard shortcut hints and clear ARIA descriptions. Use visibility in tandem with opacity for clean accessibility transitions.
