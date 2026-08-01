@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - OS-Aware Search Shortcut Indicators and Input Spacing Integration
+**Learning:** Hardcoding a generic keyboard shortcut like `/` limits usability. In modern web apps, users expect familiar platform-specific shortcuts like `⌘K` on macOS or `Ctrl+K` on Windows/Linux. Implementing this requires dynamically checking `navigator.platform` and updating the DOM text content, the ARIA label, and expanding the search input's right padding (`padding-right: 72px` and `right: 36px`) so multi-character indicators do not overlap with the input clear button.
+**Action:** When adding shortcut hints to inputs, always dynamically detect the user's OS, update the visual and accessibility labels, and ensure the input's padding is wide enough to prevent layout overlaps.
