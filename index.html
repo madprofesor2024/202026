@@ -10,11 +10,11 @@
     .search-container { position: relative; display: flex; align-items: center; margin-bottom: 1rem; max-width: 320px; color: #64748b; }
     .search-icon { position: absolute; left: 10px; pointer-events: none; transition: color 0.2s ease; }
     .search-container:focus-within .search-icon, .search-container.has-query .search-icon { color: #3b82f6; }
-    #search { width: 100%; padding: 8px 36px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
+    #search { width: 100%; padding: 8px 72px 8px 32px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.875rem; transition: all 0.2s ease; color: #1e293b; }
     #search:hover { border-color: #94a3b8; }
     #search:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     #search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
-    .kbd-hint { position: absolute; right: 34px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s; }
+    .kbd-hint { position: absolute; right: 36px; padding: 1px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 0.7rem; color: #334155; pointer-events: none; transition: opacity 0.2s, visibility 0.2s; }
     .clear-btn { position: absolute; right: 6px; opacity: 0; visibility: hidden; pointer-events: none; border: none; background: transparent; color: #334155; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(0.8); }
     .clear-btn.visible { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
     .clear-btn:hover { background: #f1f5f9; color: #0f172a; }
@@ -73,7 +73,7 @@
   <div class="search-container">
     <label for="search" class="sr-only">Search</label>
     <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-    <input type="search" id="search" placeholder="Search..." autocomplete="off" enterkeyhint="search" spellcheck="false" autocapitalize="none" autocorrect="off" aria-keyshortcuts="/ Control+K Meta+K">
+    <input type="search" id="search" placeholder="Search..." autocomplete="off" enterkeyhint="search" spellcheck="false" autocapitalize="none" autocorrect="off" aria-keyshortcuts="/ Control+K Meta+K" aria-describedby="kbd-hint">
     <span class="kbd-hint" id="kbd-hint" aria-hidden="true">/</span>
     <button id="clear-search" type="button" class="clear-btn" aria-label="Clear search (Esc)" title="Clear search (Esc)" aria-keyshortcuts="Escape">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -97,10 +97,14 @@
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
           searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    hint.textContent = isMac ? '⌘K' : 'Ctrl+K';
+    hint.setAttribute('aria-label', `Keyboard shortcut: ${isMac ? 'Command' : 'Control'} + K`);
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
-      hint.style.opacity = (v || f) ? '0' : '1';
+      hint.style.opacity = v ? '0' : '1';
+      hint.style.visibility = v ? 'hidden' : 'visible';
       search.parentElement.classList.toggle('has-query', v);
       const items = [document.querySelector('.box'), document.querySelector('p:not(.sr-only):not(#no-results)')];
       let matches = 0;
