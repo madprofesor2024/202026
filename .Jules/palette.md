@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Accessible Shortcut Description and Visibility State
+**Learning:** Linking search inputs to keyboard shortcut hints via `aria-describedby` ensures screen reader users are informed of available navigation shortcuts upon focusing the input. Additionally, transitioning both `opacity` and `visibility` prevents screen readers from reading transparent or hidden shortcut elements when active.
+**Action:** Always link shortcut hint elements using `aria-describedby` and transition `visibility` alongside `opacity` when fading out interactive or informative UI hints.
