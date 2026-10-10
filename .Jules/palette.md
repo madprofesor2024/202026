@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - OS-Aware Shortcut Hinting for Intuitive Power-User Affordances
+**Learning:** Displaying generic shortcut badges (like '/') when multi-key shortcuts (`Ctrl+K`/`⌘K`) are supported can lead to user hesitation. Programmatically detecting the user's platform (`navigator.platform`) to show OS-tailored badges ('⌘K' for macOS, 'Ctrl+K' for Windows/Linux) significantly improves immediate mental recognition while ensuring sufficient input padding (`padding-right: 72px`) prevents overlap with clear controls.
+**Action:** Always adapt shortcut visual hints to the user's OS platform and adjust input container spacing to accommodate multi-character badges smoothly.
