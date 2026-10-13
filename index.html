@@ -88,7 +88,7 @@
       <span id="button-text">Copy</span>
     </button>
   </div>
-  <p id="no-results" class="sr-only" style="display: none; position: static; width: auto; height: auto; clip: auto; margin-top: 1rem; color: #64748b; font-size: 0.875rem;">
+  <p id="no-results" class="sr-only" style="display: none; position: static; width: auto; height: auto; clip: auto; margin-top: 1rem; color: #64748b; font-size: 0.875rem; word-break: break-all;">
     No matches found for "<span id="search-term" style="font-weight: 500; color: #1e293b;"></span>".
     <button id="reset-search" class="link-btn">Clear search</button>
   </p>
@@ -118,7 +118,7 @@
         if (m) matches++;
       });
       if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+        searchTerm.textContent = search.value.length > 32 ? search.value.slice(0, 32) + '...' : search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
@@ -129,7 +129,7 @@
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
