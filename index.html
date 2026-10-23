@@ -118,7 +118,7 @@
         if (m) matches++;
       });
       if (v && matches === 0) {
-        searchTerm.textContent = search.value;
+        searchTerm.textContent = search.value.length > 32 ? search.value.slice(0, 32) + '...' : search.value;
         noResults.style.display = 'block';
         noResults.classList.remove('sr-only');
       } else {
