@@ -96,7 +96,9 @@
   <script>
     const search = document.getElementById('search'), clear = document.getElementById('clear-search'),
           hint = document.getElementById('kbd-hint'), noResults = document.getElementById('no-results'),
-          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search');
+          searchTerm = document.getElementById('search-term'), resetBtn = document.getElementById('reset-search'),
+          ann = document.getElementById('announcement'), code = document.getElementById('command-code'),
+          btn = document.getElementById('copy-button'), txt = document.getElementById('button-text');
     const ui = () => {
       const q = search.value, v = q.length > 0, f = document.activeElement === search;
       clear.classList.toggle('visible', v);
@@ -129,7 +131,7 @@
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
@@ -137,7 +139,7 @@
       const isSearchShortcut = e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key === 'k');
       if (isSearchShortcut && !ed) { e.preventDefault(); search.focus(); }
       if (e.key === 'Escape' && document.activeElement === search) {
-        if (search.value) { search.value = ''; ui(); } else search.blur();
+        if (search.value) { reset(); } else search.blur();
       }
       if (e.key === 'ArrowDown' && document.activeElement === search) {
         const first = [code, btn, resetBtn].find(el => el.offsetParent !== null);
@@ -148,8 +150,6 @@
       }
     });
 
-    const btn = document.getElementById('copy-button'), txt = document.getElementById('button-text'),
-          ann = document.getElementById('announcement'), code = document.getElementById('command-code');
     let tid;
     const copy = () => {
       if (!navigator.clipboard) return;
