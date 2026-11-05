@@ -129,7 +129,7 @@
     };
     ['input', 'focus', 'blur'].forEach(e => search.addEventListener(e, ui));
     search.addEventListener('focus', () => search.select());
-    const reset = () => { search.value = ''; search.focus(); ui(); };
+    const reset = () => { search.value = ''; search.focus(); ui(); ann.textContent = 'Search cleared'; };
     clear.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     window.addEventListener('keydown', e => {
@@ -137,7 +137,7 @@
       const isSearchShortcut = e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key === 'k');
       if (isSearchShortcut && !ed) { e.preventDefault(); search.focus(); }
       if (e.key === 'Escape' && document.activeElement === search) {
-        if (search.value) { search.value = ''; ui(); } else search.blur();
+        if (search.value) { search.value = ''; ui(); ann.textContent = 'Search cleared'; } else search.blur();
       }
       if (e.key === 'ArrowDown' && document.activeElement === search) {
         const first = [code, btn, resetBtn].find(el => el.offsetParent !== null);
