@@ -33,3 +33,7 @@
 ## 2026-04-01 - Persistent Search Affordance for Active Filters
 **Learning:** When a search filter is active but the input is not focused, users may lose the mental connection between the filtered results and the search bar. Keeping the search icon highlighted in its "active" state as long as a query exists provides a persistent visual cue that the current view is a filtered one, not the default state.
 **Action:** Maintain visual feedback on search icons or labels as long as an input field contains an active filter, even when focus is lost.
+
+## 2026-04-02 - Accessible Feedback on Search Reset
+**Learning:** Sighted users receive immediate visual confirmation when a search query is cleared because the full content list reappears. Assistive technology users navigating via screen readers require explicit confirmation that their clear action took effect; without announcing that the search was cleared via an aria-live region, users are left uncertain whether results reset or focus was merely lost.
+**Action:** When clearing or resetting search filters via buttons or keyboard shortcuts (like Escape), explicitly update an aria-live announcement region with 'Search cleared'.
